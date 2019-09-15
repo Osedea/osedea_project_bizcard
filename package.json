@@ -17,11 +17,13 @@
     "react-native-shake": "^3.3.1",
     "react-native-share": "^2.0.0",
     "react-native-snap-carousel": "^3.8.0",
+    "react-native-splash-screen": "^3.2.0",
     "react-native-svg": "^9.9.3"
   },
   "devDependencies": {
     "@babel/core": "^7.6.0",
     "@babel/runtime": "^7.6.0",
+    "@bam.tech/react-native-make": "^1.0.2",
     "babel-jest": "^24.9.0",
     "eslint": "^6.4.0",
     "eslint-config-osedea": "^4.0.1",

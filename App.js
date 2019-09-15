@@ -23,6 +23,8 @@ import Share from 'react-native-share';
 import { Icon } from 'react-native-eva-icons';
 import { addOrientationListener, removeOrientationListener } from 'react-native-orientation';
 import RNShake from 'react-native-shake';
+import SplashScreen from 'react-native-splash-screen';
+
 import Carousel from './components/Carousel';
 
 const slides = [
@@ -79,9 +81,12 @@ class App extends Component {
                         slidesShown: slides.filter((item) => item.value !== '')
                     });
                 }
+
+                SplashScreen.hide();
             })
             .catch((error) => {
                 console.error(error);
+                SplashScreen.hide();
             });
 
         addOrientationListener(this.handleOrientationChange);
