@@ -149,6 +149,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (project.hasProperty('BIZCARD_RELEASE_STORE_FILE')) {
+                storeFile file(BIZCARD_RELEASE_STORE_FILE)
+                storePassword BIZCARD_RELEASE_STORE_PASSWORD
+                keyAlias BIZCARD_RELEASE_KEY_ALIAS
+                keyPassword BIZCARD_RELEASE_KEY_PASSWORD
+            }
+        }
     }
     buildTypes {
         debug {

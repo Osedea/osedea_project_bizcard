@@ -25,40 +25,60 @@ import { addOrientationListener, removeOrientationListener } from 'react-native-
 import RNShake from 'react-native-shake';
 import Carousel from './components/Carousel';
 
+const slides = [
+    {
+        icon: 'phone',
+        title: 'Phone',
+        value: '+1',
+        color: '#6CDC61',
+        type: 'phone-pad',
+    },
+    {
+        icon: 'twitter',
+        title: 'Twitter',
+        value: 'https://twitter.com',
+        color: '#00acee',
+    },
+    {
+        icon: 'linkedin',
+        title: 'LinkedIn',
+        value: 'https://linkedin.com/in/',
+        color: '#0e76a8',
+    },
+    {
+        icon: 'email',
+        title: 'Email',
+        value: 'info@osedea.com',
+        color: '#CB4A3A',
+        type: 'email-address',
+    }
+];
+
 class App extends Component {
     currentSlide = new Animated.Value(0);
 
     state = {
         orientation: '',
-        slides: [
-            {
-                icon: 'twitter',
-                title: 'Twitter',
-                value: 'https://twitter.com',
-                color: '#00acee',
-            },
-            {
-                icon: 'linkedin',
-                title: 'LinkedIn',
-                value: 'https://linkedin.com',
-                color: '#0e76a8',
-            },
-            {
-                icon: 'email',
-                title: 'Email',
-                value: 'info@osedea.com',
-                color: '#CB4A3A',
-            }
-        ],
+        slides,
+        slidesShown: slides,
         showModal: false,
     };
 
     slidesDraft = this.state.slides;
 
     componentDidMount() {
+        // In case
+        // AsyncStorage.clear();
         AsyncStorage.getItem('@data')
             .then((data) => {
-                this.setState({ slides: JSON.parse(data) });
+                const slides = JSON.parse(data);
+
+                if (data) {
+                    this.setState({
+                        slides,
+                        slidesShown: slides.filter((item) => item.value !== '')
+                    });
+                }
             })
             .catch((error) => {
                 console.error(error);
@@ -88,7 +108,7 @@ class App extends Component {
     createButtonPressHandler = (item) => () => {
         if (item === 'share') {
             Share.open({
-                message: `Re-bonjour !\nComme convenu, vous pouvez me retrouver sur :${this.state.slides.map((slide) => `\n - ${slide.title}: ${slide.value}`).join('')}`,
+                message: `Re-bonjour !\nComme convenu, vous pouvez me retrouver sur :${this.state.slidesShown.map((slide) => `\n - ${slide.title}: ${slide.value}`).join('')}`,
                 title: 'Restons en contact !',
                 subject: 'Restons en contact !',
             })
@@ -97,7 +117,7 @@ class App extends Component {
             })
             .catch((err) => { err && console.log(err); });
         } else {
-            this.carousel.snapToItem(this.state.slides.indexOf(item));
+            this.carousel.snapToItem(this.state.slidesShown.indexOf(item));
         }
     }
 
@@ -118,9 +138,10 @@ class App extends Component {
             .then(() => {
                 this.setState({
                     slides,
+                    slidesShown: slides.filter((item) => item.value !== ''),
                     showModal: false,
                 }, () => {
-                        this.slidesDraft = this.state.slides;
+                    this.slidesDraft = this.state.slides;
                 });
             })
             .catch((error) => {
@@ -140,8 +161,8 @@ class App extends Component {
                     styles.container,
                     {
                         backgroundColor: this.currentSlide.interpolate({
-                            inputRange: this.state.slides.map((item, index) => index),
-                            outputRange: this.state.slides.map((item, index) => index !== 2 ? item.color : '#FFFFFF'),
+                            inputRange: this.state.slidesShown.map((item, index) => index),
+                            outputRange: this.state.slidesShown.map((item) => item.color !== '#CB4A3A' ? item.color : '#FFFFFF'),
                         }),
                     }
                 ]}
@@ -153,27 +174,29 @@ class App extends Component {
                 <View style={styles.sliderContainer}>
                     <Carousel
                         ref={this.handleRef}
-                        slides={this.state.slides}
+                        slides={this.state.slidesShown}
                         onSnapToItem={this.handleSnapTo}
                         orientation={this.state.orientation}
                     />
                     <View style={styles.buttonsContainer}>
-                        {this.state.slides.map((item) => (
-                            <TouchableOpacity
-                                key={item.icon}
-                                onPress={this.createButtonPressHandler(item)}
-                                style={styles.buttonContainer}
-                            >
-                                <View style={styles.button}>
-                                    <Icon
-                                        name={item.icon}
-                                        width={20}
-                                        height={20}
-                                        style={styles.icon}
-                                    />
-                                </View>
-                            </TouchableOpacity>
-                        ))}
+                        {this.state.slidesShown
+                            .map((item) => (
+                                <TouchableOpacity
+                                    key={item.icon}
+                                    onPress={this.createButtonPressHandler(item)}
+                                    style={styles.buttonContainer}
+                                >
+                                    <View style={styles.button}>
+                                        <Icon
+                                            name={item.icon}
+                                            width={20}
+                                            height={20}
+                                            style={styles.icon}
+                                        />
+                                    </View>
+                                </TouchableOpacity>
+                            ))
+                        }
                         <TouchableOpacity
                             onPress={this.createButtonPressHandler('share')}
                             style={styles.buttonContainer}
@@ -205,6 +228,7 @@ class App extends Component {
                                     style={styles.input}
                                     onChangeText={this.createTextChangeHandler(slide)}
                                     defaultValue={slide.value}
+                                    keyboardType={slide.type || 'default'}
                                 />
                             </View>
                         ))}
